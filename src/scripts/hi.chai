@@ -1,0 +1,74 @@
+var config = ShellConfig()
+config.udp_enabled = true
+//config.datadir = "./chailastos.data"  // doesn't work with strings??
+//config.loglevel = <ElaLogLevel>6  // doesn't work cuz of type
+//config.logfile = ""
+
+var rc = 0
+
+class State {
+   var error
+   var disconnected
+   var address
+   var nodeId
+   var userId
+   var quit
+
+   def State() {
+      this.error = 0
+      this.disconnected = true
+      this.address = ""
+      this.nodeId = ""
+      this.userId = ""
+      this.quit = false
+   }
+
+   def print() {
+      print("address: " + this.address)
+      print("node id: " + this.nodeId)
+      print("user id: " + this.userId)
+   }
+}
+
+global state = State()
+
+def cbConnection(status) {
+   if (status == 0) {
+      state.disconnected = false
+   } else {
+      state.disconnected = true
+   }
+   if (state.disconnected) {
+      print("Connection callback: disconnected")
+   } else {
+      print("Connection callback: connected")     
+   }
+
+};
+setCallback("connection", "cbConnection")
+
+config.addNode(Node("13.58.208.50", "33445", "89vny8MrKdDKs7Uta9RdVmspPjnRMdwMmaiEW27pZ7gh"))
+config.addNode(Node("18.216.102.47", "33445", "G5z8MqiNDFTadFUPfMdYsYtkUDbX5mNCMVHMZtsCnFeb"))
+config.addNode(Node("18.216.6.197", "33445", "H8sqhRrQuJZ6iLtP2wanxt4LzdNrN2NNFnpPdq1uJ9n2"))
+config.addNode(Node("52.83.171.135", "33445", "5tuHgK1Q4CYf4K5PutsEPK5E3Z7cbtEBdx7LwmdzqXHL"))
+config.addNode(Node("52.83.191.228", "33445", "3khtxZo89SBScAMaHhTvD68pPHiKxgZT6hTCSZZVgNEm"))
+
+print("Init'ing carrier...")
+rc = elaInit(config)
+
+if (rc != 0) {
+   print("Starting carrier...")
+   elaRun()
+   print("Waiting for connection...")
+   while (state.disconnected) {}
+   state.address = getAddress()
+   state.nodeId = getNodeid()
+   state.userId = getUserid()
+   state.error = getError()
+   state.print()
+   while (!state.quit) {
+      // call c func to get cmdline input
+   }
+}
+
+
