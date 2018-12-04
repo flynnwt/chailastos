@@ -1,2 +1,2 @@
-# chailostos
+# chailastos
 Chaiscript Elastos Carrier Mashup
