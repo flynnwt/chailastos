@@ -1,26 +1,63 @@
 # chailastos
 Chaiscript Elastos Carrier Mashup
 
-
-
-```script
-wtf@ubuntu:$ chailastos 
+<pre>
+$ chailastos
 Starting...
 Registering chai interfaces.
 Initializing...
+Running hi.chai
 Init'ing carrier...
-Creating carrier.
-2018-12-03 19:46:37 - DEBUG   : Try to loading persistence data from: ./chailastos.data/carrier.data.
-2018-12-03 19:46:37 - DEBUG   : <new_networking_ex>:Bound successfully to 0.0.0.0:33445
-
-2018-12-03 19:46:37 - INFO    : Carrier: Carrier node created.
+Creating carrier...
+2018-12-06 18:19:23 - INFO    : Carrier: Carrier node created.
 Starting carrier...
 Waiting for connection...
+--- cbFriendList() ---
+  name: felicity-windoze    presence:none    status: disconnected
+userid: E4rhHAPUFPIOUPIFUJkjkjkjfk390lk3lli2u2i2EoR7
+gender: 
+   loc: USA
+ email:  phone: 
+  desc: 
+ label: 
+<b>userinfo</b>
+  name: wtf-chai
+userid: 45jjyiiUkkxo1xrc1TnEcq78DPPYok45ioPQlZp89RGL
+gender: metal
+   loc: 
+ email:  phone: 
+  desc: 
+Carrier ready.
 Connection callback: connected
-address: 3WkkunLGQeowjgaLKDw5BEEcGt1uQeFXr3YfEEQkrAnpFrt8wMBU
-node id: 29KDf2JpKDHE91rc2TnEcq78DPPYskfuQb43yZMRhRGL
-user id: 29KDf2JpKDHE91rc2TnEcq78DPPYskfuQb43yZMRhRGL
-2018-12-03 19:54:51 - DEBUG   : <client_or_ip_port_in_list>:coipil[35]: switching public_key (ipv4)
-
-2018-12-03 19:56:40 - DEBUG   : <client_or_ip_port_in_list>:coipil[35]: switching public_key (ipv4)
-```
+address: 287L9clxm91wjgaL85lllEEcGt1uQeFXr3YfEtyuVLcpFrt8wMBU
+node id: 45jjyiiUkkxo1xrc1TnEcq78DPPYok45ioPQlZp89RGL
+user id: 45jjyiiUkkxo1xrc1TnEcq78DPPYok45ioPQlZp89RGL
+ friend connection: E4rhHAPUFPIOUPIFUJkjkjkjfk390lk3lli2u2i2EoR7 connected
+ friend presence: E4rhHAPUFPIOUPIFUJkjkjkjfk390lk3lli2u2i2EoR7 busy
+ friend message: E4rhHAPUFPIOUPIFUJkjkjkjfk390lk3lli2u2i2EoR7 we have assumed control
+ friend presence: E4rhHAPUFPIOUPIFUJkjkjkjfk390lk3lli2u2i2EoR7 none
+<b>msg,E4rhHJQ1gP53swTNFZTT9pCiL1GuNtGkPAFFPk6TEoR7,harmony's the sweetest sound</b>
+<b>userinfo,desc,chailastos testing</b>
+  name: wtf-chai
+userid: 45jjyiiUkkxo1xrc1TnEcq78DPPYok45ioPQlZp89RGL
+gender: metal
+   loc: 
+ email:  phone: 
+  desc: chailastos testing
+ friend info updated: E4rhHAPUFPIOUPIFUJkjkjkjfk390lk3lli2u2i2EoR7
+  name: felicity-windoze    presence:none    status: connected
+userid: E4rhHAPUFPIOUPIFUJkjkjkjfk390lk3lli2u2i2EoR7
+gender: strangiato
+   loc: USA
+ email:  phone: 
+  desc: 
+ label: 
+  friend info updated: E4rhHAPUFPIOUPIFUJkjkjkjfk390lk3lli2u2i2EoR7
+  name: felicity-windoze    presence:none    status: connected
+userid: E4rhHAPUFPIOUPIFUJkjkjkjfk390lk3lli2u2i2EoR7
+gender: strangiato
+   loc: USA
+ email:  phone: 8675309
+  desc: 
+ label: 
+</pre>

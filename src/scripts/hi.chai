@@ -1,10 +1,35 @@
 var config = ShellConfig()
-config.udp_enabled = true
-//config.datadir = "./chailastos.data"  // doesn't work with strings??
-//config.loglevel = <ElaLogLevel>6  // doesn't work cuz of type
-//config.logfile = ""
+
+config.setUDP(true)
+config.setDataDir("./data")
+config.setLogLevel(4)
+config.setLogFile("")
+config.addNode(Node("13.58.208.50", "33445", "89vny8MrKdDKs7Uta9RdVmspPjnRMdwMmaiEW27pZ7gh"))
+config.addNode(Node("18.216.102.47", "33445", "G5z8MqiNDFTadFUPfMdYsYtkUDbX5mNCMVHMZtsCnFeb"))
+config.addNode(Node("18.216.6.197", "33445", "H8sqhRrQuJZ6iLtP2wanxt4LzdNrN2NNFnpPdq1uJ9n2"))
+config.addNode(Node("52.83.171.135", "33445", "5tuHgK1Q4CYf4K5PutsEPK5E3Z7cbtEBdx7LwmdzqXHL"))
+config.addNode(Node("52.83.191.228", "33445", "3khtxZo89SBScAMaHhTvD68pPHiKxgZT6hTCSZZVgNEm"))
 
 var rc = 0
+
+global prompt = Prompt()
+global tokenizer = Tokenizer()
+
+def readlineSync() {
+   var cmd = prompt.readline()
+   print("...got...'" + cmd + "'...")
+   if (cmd == "quit") {
+      print("Quitting...")
+      state.quit = true
+      elaQuit()
+   } if (cmd == "add") {
+      addFriend("")
+   }   
+}
+
+// initiate prompt
+setCallback("prompt", "cbPrompt")
+prompt.readline_async()
 
 class State {
    var error
@@ -17,6 +42,7 @@ class State {
    def State() {
       this.error = 0
       this.disconnected = true
+      this.ready = false
       this.address = ""
       this.nodeId = ""
       this.userId = ""
@@ -31,6 +57,44 @@ class State {
 }
 
 global state = State()
+global friends = Vector()
+
+// ----------------------------------------
+// Functions
+
+def printUser(f) {
+   print("  name: " + f.name)
+   print("userid: " + f.userid)
+   print("gender: " + f.gender)
+   print("   loc: " + f.region)
+   print(" email: " + f.email + " phone: " + f.phone)
+   print("  desc: " + f.description)
+}
+
+def printFriend(f) {
+   print("  name: " + f.userInfo.name + "    presence:" + f.presence + "    status: " + f.status)
+   print("userid: " + f.userInfo.userid)
+   print("gender: " + f.userInfo.gender)
+   print("   loc: " + f.userInfo.region)
+   print(" email: " + f.userInfo.email + " phone: " + f.userInfo.phone)
+   print("  desc: " + f.userInfo.description)
+   print(" label: " + f.label)
+}
+
+// ----------------------------------------
+// Callbacks 
+
+// can't get cb to send back an object (can't get them registered)
+// these use global objects userInfo, friendInfo
+
+def cbIdle() {}
+setCallback("idle", "cbIdle")
+
+def cbReady() {
+   state.ready = true
+   print("Carrier ready.")
+}
+setCallback("ready", "cbReady")
 
 def cbConnection(status) {
    if (status == 0) {
@@ -47,18 +111,137 @@ def cbConnection(status) {
 };
 setCallback("connection", "cbConnection")
 
-config.addNode(Node("13.58.208.50", "33445", "89vny8MrKdDKs7Uta9RdVmspPjnRMdwMmaiEW27pZ7gh"))
-config.addNode(Node("18.216.102.47", "33445", "G5z8MqiNDFTadFUPfMdYsYtkUDbX5mNCMVHMZtsCnFeb"))
-config.addNode(Node("18.216.6.197", "33445", "H8sqhRrQuJZ6iLtP2wanxt4LzdNrN2NNFnpPdq1uJ9n2"))
-config.addNode(Node("52.83.171.135", "33445", "5tuHgK1Q4CYf4K5PutsEPK5E3Z7cbtEBdx7LwmdzqXHL"))
-config.addNode(Node("52.83.191.228", "33445", "3khtxZo89SBScAMaHhTvD68pPHiKxgZT6hTCSZZVgNEm"))
+def cbFriendList() {
+   if (!friendInfo.empty) {
+      print("--- cbFriendList() ---")
+      printFriend(friendInfo)
+   }
+}
+setCallback("friendlist", "cbFriendList")
+
+def cbFriendsIterate() {
+   var i
+   var found = false
+   if (!friendInfo.empty) {
+      print("--- cbFriendsIterate() ---")
+      printFriend(friendInfo)
+      for (i = 0; i < friends.size(); ++i) {
+         if (friends[i].userInfo.userid == friendInfo.userInfo.userid) {
+            friends[i] = friendInfo
+            found = true
+            break
+         }
+      }
+      if (!found) {
+         //friends.push_back(friendInfo) // clone problem
+         print("Added new friend to list: " + friendInfo.userInfo.userid)
+      }
+   }
+}
+setCallback("friendsiterate", "cbFriendsIterate")
+
+def cbFriendConnection(id, status) {
+   print(" friend connection: " + id + " " + status)
+}
+setCallback("friendconnection", "cbFriendConnection")
+
+def cbFriendAdded() {
+   print(" friend added ***")
+   print(friendInfo.userInfo.name + ":" + friendInfo.presence)
+}
+setCallback("friendadded", "cbFriendAdded")
+
+def cbFriendPresence(id, status) {
+   print(" friend presence: " + id + " " + status)
+}
+setCallback("friendpresence", "cbFriendPresence")
+
+def cbFriendMessage(id, msg) {
+   print(" friend message: " + id + " " + msg)
+}
+setCallback("friendmessage", "cbFriendMessage")
+
+def cbFriendRequest(id, msg) {
+   print(" friend request: " + id + " " + msg)
+}
+setCallback("friendrequest", "cbFriendRequest")
+
+def cbFriendInfo(id) {
+   print(" friend info updated: " + id)
+   printFriend(friendInfo)
+}
+setCallback("friendinfo", "cbFriendInfo")
+
+// ----------------------------------------
+// do something
+
+def cbPrompt(cmdline) {
+   var token
+   var cmd
+   var tokens = Vector()
+   var i = 0
+   var self 
+
+   tokenizer.tokenize(cmdline, ',')
+   if (tokenizer.size() == 0) {
+      return
+   }
+   while (!tokenizer.end()) {
+      token = tokenizer.get()
+      tokens.push_back(token)
+   }
+   cmd = tokens[0]
+   if (cmd == "quit") {
+      print("Quitting...")
+      state.quit = true
+      elaQuit()
+   } else if (cmd == "add") {
+      addFriend(tokens[1], tokens[2])
+    } else if (cmd == "geterror") {
+      print("Error: " + to_string(getError()))
+   } else if (cmd == "msg") {
+      msgFriend(tokens[1], tokens[2])
+   } else if (cmd == "friends") {
+      getFriends()
+   } else if (cmd == "userinfo") {
+      self := getSelf()
+      if (tokens.size == 1) {
+         printUser(self)
+      } else {
+         if (tokens.size() < 3) {
+            print("Need parm,value")
+         } else {
+            if (tokens[1] == "name") {
+               self.name = tokens[2]
+            } else if (tokens[1] == "gender") {
+               self.gender = tokens[2]
+            } else if (tokens[1] == "region") {
+               self.region = tokens[2]
+            } else if (tokens[1] == "email") {
+               self.email = tokens[2]
+            } else if (tokens[1] == "phone") {
+               self.phone = tokens[2]
+            } else if (tokens[1] == "desc") {               
+               self.description = tokens[2]
+            } else {
+               print("Need name/gender/region/email/phone/desc")
+            }
+            setSelf(self)
+            self := getSelf()
+            printUser(self)  
+         }      
+      }
+   }
+}
 
 print("Init'ing carrier...")
 rc = elaInit(config)
 
 if (rc != 0) {
+   
    print("Starting carrier...")
    elaRun()
+   
    print("Waiting for connection...")
    while (state.disconnected) {}
    state.address = getAddress()
@@ -66,9 +249,12 @@ if (rc != 0) {
    state.userId = getUserid()
    state.error = getError()
    state.print()
+   
+   //print("Waiting for carrier ready...")
+   //while (!state.ready) {}
+
    while (!state.quit) {
-      // call c func to get cmdline input
+      //readlineSync()
    }
+
 }
-
-
